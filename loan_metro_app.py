@@ -2,43 +2,51 @@ import streamlit as st
 import pandas as pd
 import re
 
-# Function to parse loan details with extra columns
+# --- Loan Details Parsing Functions ---
+
 def parse_loan_details(lines):
+    """
+    Parses the loan details from the TXT file.
+    Extracts 12 main fields from each main row.
+    Then, if the following line does not start with a number, it extracts extra fields.
+    The extra fields:
+      - First field becomes "Chasis"
+      - Second field becomes "Mesin"
+      - Third field becomes "Status" (the "Warna" column is forced empty)
+    """
     data = []
     i = 0
     while i < len(lines):
         line = lines[i].strip()
-        # Match lines that start with a number (the main row)
+        # Match lines starting with a number (main row)
         if re.match(r"^\s*\d+\s+", line):
-            # Extract the 12 main fields (loan details)
+            # Extract main 12 fields: No., No Kontrak, a literal '-', Tgl Kontrak, Tgl Valuta, Mature Date,
+            # CCY, Principal, Int(%), Bunga Berjalan, Bunga sd JT, Kewajiban Berjalan, Kewajiban JT.
             match = re.match(
                 r"(\d+)\s+([A-Z0-9]+)\s+-\s+(\d{1,2}/\d{1,2}/\d{4})\s+(\d{1,2}/\d{1,2}/\d{4})\s+(\d{1,2}/\d{1,2}/\d{4})\s+([A-Z]+)\s+([\d,]+\.\d{2})\s+([\d.]+)\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})",
                 line
             )
             if match:
                 main_fields = list(match.groups())
-                # Clean numeric fields: convert Principal and next 5 fields to float
+                # Convert numeric fields (from Principal onward) to float
                 main_fields[6:12] = [float(x.replace(",", "")) for x in main_fields[6:12]]
-                # Default values for extra fields
+                # Default extra fields
                 chasis = ""
                 mesin = ""
                 status = ""
-                # Check if next line exists and does not start with a number,
-                # which would indicate extra fields.
+                # Check if the next line exists and does not start with a number.
                 if i + 1 < len(lines) and not re.match(r"^\s*\d+\s+", lines[i+1]):
                     extra_line = lines[i+1].strip()
-                    # Split extra line by two or more spaces
+                    # Split extra line by two or more spaces.
                     extra_fields = re.split(r"\s{2,}", extra_line)
-                    # Insert extra fields:
-                    # First field for Chasis, second for Mesin, third for Status.
                     if len(extra_fields) >= 1:
                         chasis = extra_fields[0]
                     if len(extra_fields) >= 2:
                         mesin = extra_fields[1]
                     if len(extra_fields) >= 3:
                         status = extra_fields[2]
-                    i += 1  # Skip extra line
-                # Construct the row with new column order:
+                    i += 1  # Skip the extra line as it has been processed.
+                # Construct final row with new column order:
                 # No., No Kontrak, Chasis, Mesin, Tgl Kontrak, Tgl Valuta, Mature Date, CCY,
                 # Principal (IDR), Int(%), Bunga Berjalan, Bunga sd JT, Kewajiban Berjalan, Kewajiban JT,
                 # Warna (forced empty), Status.
@@ -64,43 +72,54 @@ def parse_loan_details(lines):
         i += 1
     return data
 
-# Function to parse subtotals (unchanged)
-def parse_subtotals(lines):
+# --- Subtotals Parsing Function ---
+
+def parse_all_subtotals(lines):
+    """
+    Parses all subtotal lines from the end of the TXT file.
+    It matches any line starting with "Sub Total" and captures:
+      - The subtotal type (everything between "Sub Total per" and the colon)
+      - Five numeric values (with commas)
+    """
     subtotals = []
+    pattern = re.compile(
+        r"Sub Total\s+per\s+(.+?)\s+:\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})",
+        re.IGNORECASE
+    )
     for line in lines:
-        if "Sub Total per Tanggal" in line:
-            match = re.match(
-                r"Sub Total per Tanggal (\d{1,2}/\d{1,2}/\d{4})\s+:\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})",
-                line.strip()
-            )
+        line = line.strip()
+        if line.startswith("Sub Total"):
+            match = pattern.match(line)
             if match:
                 row = list(match.groups())
+                # Convert numeric values to float
                 row[1:] = [float(x.replace(",", "")) for x in row[1:]]
                 subtotals.append(row)
     return subtotals
 
+# --- Streamlit App ---
+
 def main():
     st.title("Loan TXT File Parser")
-    st.write("Upload your loan TXT file. The app will generate CSV files for loan details and subtotals.")
+    st.write("Upload your loan TXT file. The app will extract loan details and subtotals, then generate downloadable CSV files.")
 
     uploaded_file = st.file_uploader("Choose a TXT file", type=["txt"])
     if uploaded_file is not None:
         file_content = uploaded_file.read().decode("utf-8")
         lines = file_content.splitlines()
 
-        # Extract loan data and subtotals using the parsing functions
+        # Extract loan details and subtotals
         loan_data = parse_loan_details(lines)
-        subtotal_data = parse_subtotals(lines)
+        subtotal_data = parse_all_subtotals(lines)
 
-        # Define column headers with extra columns in the specified order
+        # Define column headers for loans and subtotals
         loan_columns = [
             "No.", "No Kontrak", "Chasis", "Mesin", "Tgl Kontrak", "Tgl Valuta", "Mature Date", 
             "CCY", "Principal (IDR)", "Int(%)", "Bunga Berjalan", "Bunga sd JT", 
             "Kewajiban Berjalan", "Kewajiban JT", "Warna", "Status"
         ]
         subtotal_columns = [
-            "Tanggal", "Principal (IDR)", "Bunga Berjalan", 
-            "Bunga sd JT", "Kewajiban Berjalan", "Kewajiban JT"
+            "Subtotal Type", "Value1", "Value2", "Value3", "Value4", "Value5"
         ]
 
         df_loans = pd.DataFrame(loan_data, columns=loan_columns)
@@ -112,7 +131,7 @@ def main():
         st.subheader("Subtotals")
         st.dataframe(df_subtotals)
 
-        # Provide download buttons for the CSV files
+        # Provide download buttons for CSV files
         csv_loans = df_loans.to_csv(index=False).encode("utf-8")
         csv_subtotals = df_subtotals.to_csv(index=False).encode("utf-8")
 
