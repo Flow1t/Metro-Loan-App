@@ -119,7 +119,7 @@ def main():
             "Kewajiban Berjalan", "Kewajiban JT", "Warna", "Status"
         ]
         subtotal_columns = [
-            "Subtotal Type", "Value1", "Value2", "Value3", "Value4", "Value5"
+            "Subtotal Type", "Pokok", "Bunga Berjalan", "Bunga sd JT", "Kewajiban Berjalan", "Kewajiban JT"
         ]
 
         df_loans = pd.DataFrame(loan_data, columns=loan_columns)
