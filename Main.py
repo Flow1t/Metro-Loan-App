@@ -15,6 +15,6 @@ st.markdown(
     - Mutasi Bank
     - Pencairan
     \n\n
-    Created by: Devin Augustin
+    Created by: ***Devin Augustin***
     """
 )
