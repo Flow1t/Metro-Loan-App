@@ -30,10 +30,10 @@ def main():
     st.title("Mutasi Bank Organizer")
     st.write("Upload your Mutasi Bank file. The app will seperate the Debit and Credit automatically")
 
-    file1 = st.file_uploader("Choose an XLSX file", type=["xlsx"])
+    file_mutasi = st.file_uploader("Choose an XLSX file", type=["xlsx"])
 
-    if file1 is not None:
-        mutasi = mutasi_organizer(file1)
+    if file_mutasi is not None:
+        mutasi = mutasi_organizer(file_mutasi)
 
         st.success("Mutasi Bank File Generated")
         
