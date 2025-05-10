@@ -12,8 +12,9 @@ st.markdown(
     """
     ### Convert your existing txt file into csv!
     Features:
-    - Mutasi Bank
-    - Pencairan
+    - Mutasi Bank MG
+    - Pencairan MG
+    - Mutasi Bank *NEW*
     \n\n
     Created by: ***Devin Augustin***
     """
