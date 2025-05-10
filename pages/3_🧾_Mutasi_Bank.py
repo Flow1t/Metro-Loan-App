@@ -16,7 +16,7 @@ def mutasi_organizer(file1):
     df['Kredit'] = np.where(df['Jenis Transaksi'] == 'CR', df['Mutasi'], 0)
 
     # Drop unneeded columns
-    df = df.drop(columns=['Mutasi', 'Jenis Transaksi', 'Cabang'])
+    df = df.drop(columns=['Tanggal', 'Mutasi', 'Jenis Transaksi', 'Cabang'])
 
     # Reorder columns
     new_columns_order = ['Keterangan', 'Debit', 'Kredit', 'Saldo']
