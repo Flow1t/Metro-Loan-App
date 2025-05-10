@@ -8,7 +8,7 @@ st.set_page_config(page_title="Mutasi")
 st.sidebar.header("Mutasi Bank Organizer")
 
 def mutasi_organizer(file1):
-    df = pd.read_excel("contoh_mutasi_bank.xlsx", index_col=0)
+    df = pd.read_excel("file1", index_col=0)
 
     df['Debit'] = np.where(df['Jenis Transaksi'] == 'DB', df['Mutasi'], 0)
     df['Kredit'] = np.where(df['Jenis Transaksi'] == 'CR', df['Mutasi'], 0)
