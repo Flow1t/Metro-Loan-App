@@ -9,7 +9,7 @@ st.sidebar.header("Mutasi Bank Organizer")
 
 def mutasi_organizer(file1):
     # read the uploaded file directly
-    df = pd.read_excel(file1, index_col=0)
+    df = pd.read_excel(file1, header=0)
 
     # Add Debit and Kredit columns based on Jenis Transaksi
     df['Debit'] = np.where(df['Jenis Transaksi'] == 'DB', df['Mutasi'], 0)
