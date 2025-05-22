@@ -26,7 +26,7 @@ def mutasi_organizer(file1):
 
 
 def main():
-    st.title("Mutasi Bank Organizer")
+    st.title("Mutasi Bank Organizer - English Version")
     st.write("Upload your Mutasi Bank file. The app will separate the Debit and Credit automatically.")
 
     file_mutasi = st.file_uploader("Choose an XLSX file", type=["xlsx"])
