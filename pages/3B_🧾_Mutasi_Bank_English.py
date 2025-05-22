@@ -12,8 +12,8 @@ def mutasi_organizer(file1):
     df = pd.read_excel(file1, header=0)
 
     # Add Debit and Kredit columns based on Jenis Transaksi
-    df['Debit'] = np.where(df['Transcation Type'] == 'DB', df['Amount'], 0)
-    df['Kredit'] = np.where(df['Transcation Type'] == 'CR', df['Amount'], 0)
+    df['Debit'] = np.where(df['Transaction Type'] == 'DB', df['Amount'], 0)
+    df['Kredit'] = np.where(df['Transaction Type'] == 'CR', df['Amount'], 0)
 
     # Drop unneeded columns
     df = df.drop(columns=['Amount', 'Transaction Type', 'Branch'])
