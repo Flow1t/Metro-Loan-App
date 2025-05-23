@@ -33,7 +33,13 @@ def pajak_unit(file1):
 
 def main():
     st.title("Faktur Pajak Unit Organizer")
-    st.write("Upload your Faktur Pajak file.")
+    st.write("Upload your Faktur Pajak file. Add column name on the first row as follow:")
+    st.markdown(
+        """
+        - First Column: ColumnA
+        - Second Column: ColumnB
+        """
+    )
 
     file_pajak_unit = st.file_uploader("Choose an XLSX file", type=["xlsx"])
 
