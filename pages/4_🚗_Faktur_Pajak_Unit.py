@@ -44,7 +44,7 @@ def main():
     file_pajak_unit = st.file_uploader("Choose an XLSX file", type=["xlsx"])
 
     if file_pajak_unit is not None:
-        pajak_unit = pajak_unit(file_pajak_unit
+        unit = pajak_unit(file_pajak_unit
 )
 
         st.success("Faktur Pajak File Generated")
