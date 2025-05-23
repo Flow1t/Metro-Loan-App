@@ -44,15 +44,14 @@ def main():
     file_pajak_unit = st.file_uploader("Choose an XLSX file", type=["xlsx"])
 
     if file_pajak_unit is not None:
-        unit = pajak_unit(file_pajak_unit
-)
+        unit = pajak_unit(file_pajak_unit)
 
         st.success("Faktur Pajak File Generated")
 
         # Convert DataFrame to Excel in memory
         output = BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            pajak_unit.to_excel(writer, index=False, sheet_name='pajak_unit')
+            unit.to_excel(writer, index=False, sheet_name='pajak_unit')
         processed_data = output.getvalue()
 
         # Download button
