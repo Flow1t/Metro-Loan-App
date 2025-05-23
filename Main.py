@@ -14,7 +14,9 @@ st.markdown(
     Features:
     - Mutasi Bank MG
     - Pencairan MG
-    - Mutasi Bank *NEW*
+    - Mutasi Bank - Indonesia *NEW*
+    - Mutasi Bank - English *NEW*
+    - Faktur Pajak Unit
     \n\n
     Created by: ***Devin Augustin***
     """
