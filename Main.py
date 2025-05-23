@@ -4,7 +4,7 @@ st.set_page_config(
     page_title="Metro Loan App"
 )
 
-st.write("# TXT to CSV Parser 🔥")
+st.write("# File Organizer 🔥")
 
 st.sidebar.success("Select a feature above.")
 
