@@ -42,12 +42,15 @@ def main():
             mutasi.to_excel(writer, index=False, sheet_name='Mutasi')
         processed_data = output.getvalue()
 
+        # Set the download file name based on uploaded file's name
+        original_file_name = file_mutasi.name
+        new_file_name = original_file_name  # or modify it if you want, like adding '_processed.xlsx'
+
         # Download button
         st.download_button(
             "Download Mutasi Bank File",
             data=processed_data,
-            file_name=file_mutasi,
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            file_name=new_file_name,
         )
 
 if __name__ == "__main__":
