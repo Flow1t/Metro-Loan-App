@@ -46,7 +46,7 @@ def main():
         st.download_button(
             "Download Mutasi Bank File",
             data=processed_data,
-            file_name="mutasi_bank.xlsx",
+            file_name=mutasi,
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
