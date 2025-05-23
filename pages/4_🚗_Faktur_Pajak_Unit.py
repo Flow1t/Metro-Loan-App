@@ -25,7 +25,7 @@ def pajak_unit(file1):
     # Keep rows where the column contains "seri faktur pajak" or any value with "901"
     filtered_df = df[
         #(mask_mk & df[column_name].astype(str).str.strip().str.contains(pattern_mk, case=False, na=False)) |
-        (df[column_name].astype(str).str.strip().str.contains(pattern_non_mk, case=False, na=False))
+        (df[column_name].astype(str).str.strip().str.contains(pattern_mk, case=False, na=False))
     ]
 
     return filtered_df
