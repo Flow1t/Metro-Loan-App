@@ -11,7 +11,7 @@ def mutasi_organizer(file1):
     df = pd.read_csv(file1, header=None)  # no header, read as raw data
 
     # Keep only necessary columns: col 0 (Tanggal), col 1 (Keterangan), col 3 (Jumlah), col 4 (Saldo)
-    df = df[[0, 1, 3, 4]]
+    df = df[[0, 1, 2, 3, 4]]
     df.columns = ['Tanggal Transaksi', 'Keterangan', 'Cabang', 'Jumlah', 'Saldo']
 
     # Convert 'Jumlah' to string
