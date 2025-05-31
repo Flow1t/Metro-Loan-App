@@ -12,7 +12,7 @@ def mutasi_organizer(file1):
 
     # Keep only necessary columns: col 0 (Tanggal), col 1 (Keterangan), col 3 (Jumlah), col 4 (Saldo)
     df = df[[0, 1, 3, 4]]
-    df.columns = ['Tanggal Transaksi', 'Keterangan', 'Jumlah', 'Saldo']
+    df.columns = ['Tanggal Transaksi', 'Keterangan', 'Cabang', 'Jumlah', 'Saldo']
 
     # Convert 'Jumlah' to string
     df['Jumlah'] = df['Jumlah'].astype(str)
@@ -29,7 +29,7 @@ def mutasi_organizer(file1):
     df = df.drop(columns=['Jumlah', 'Nominal', 'Jenis Transaksi'])
 
     # Final column order
-    new_columns_order = ['Tanggal Transaksi', 'Keterangan', 'Debit', 'Kredit', 'Saldo']
+    new_columns_order = ['Tanggal Transaksi', 'Keterangan', 'Cabang', 'Debit', 'Kredit', 'Saldo']
     df = df.reindex(columns=new_columns_order)
 
     return df
