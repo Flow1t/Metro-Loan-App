@@ -8,7 +8,7 @@ st.set_page_config(page_title="Mutasi")
 st.sidebar.header("Mutasi Bank Organizer - MG")
 
 def mutasi_organizer(file1):
-    df = pd.read_csv(file1, skiprows=6, header=None)  # no header, read as raw data
+    df = pd.read_csv(file1, header=None)  # no header, read as raw data
 
     # Keep only necessary columns: col 0 (Tanggal), col 1 (Keterangan), col 3 (Jumlah), col 4 (Saldo)
     df = df[[0, 1, 3, 4]]
