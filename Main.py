@@ -113,7 +113,7 @@ section[data-testid="stSidebar"] > div { padding: 0 !important; }
     box-shadow: 0 4px 24px rgba(196,147,63,0.4) !important;
 }
 
-#MainMenu, footer { display: none !important; }
+#footer { display: none !important; }
 [data-testid="stDecoration"] { display: none !important; }
 [data-testid="stToolbarActions"] { display: flex !important; }
 .stSpinner > div { border-top-color: #c4933f !important; }
