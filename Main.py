@@ -115,6 +115,7 @@ section[data-testid="stSidebar"] > div { padding: 0 !important; }
 
 #MainMenu, footer { display: none !important; }
 [data-testid="stDecoration"] { display: none !important; }
+[data-testid="stToolbarActions"] { display: flex !important; }
 .stSpinner > div { border-top-color: #c4933f !important; }
 </style>
 """, unsafe_allow_html=True)
