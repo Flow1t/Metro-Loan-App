@@ -1,66 +1,66 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 from io import BytesIO
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from styles import SHARED_CSS, page_header, info_card, divider
 
-st.set_page_config(page_title="Faktur Pajak Unit")
+st.set_page_config(page_title="Faktur Pajak Unit", page_icon="🚗", layout="wide")
+st.markdown(SHARED_CSS, unsafe_allow_html=True)
+st.markdown(page_header("Faktur Pajak Unit", "XLSX Organiser", "Upload your Faktur Pajak XLSX file to filter and extract relevant rows automatically."), unsafe_allow_html=True)
 
-st.sidebar.header("Faktur Pajak Unit")
+st.sidebar.markdown("### 🚗 Faktur Pajak Unit")
+st.sidebar.markdown("Filter and extract relevant rows from Faktur Pajak Unit XLSX files.")
+
+# ── Instructions ───────────────────────────────────────────────────────────────
+st.markdown(info_card("""
+<strong>File format required</strong> — add column headers on the first row:
+<ul>
+  <li><code>ColumnA</code> — primary content column (used for filtering)</li>
+  <li><code>ColumnB</code> — secondary column (used for MK detection)</li>
+</ul>
+"""), unsafe_allow_html=True)
+
+# ── Logic ─────────────────────────────────────────────────────────────────────
 
 def pajak_unit(file1):
     df = pd.read_excel(file1, header=0)
 
-    # Print column names to verify
-    print(df.columns)
+    pattern_mk = (
+        r"seri faktur pajak|900|901|total ppn|dasar pengenaan pajak"
+        r"|2021|2022|2023|2024"
+        r"|^([1-9]|[1-9]\d|100)$"
+    )
 
-    # Use the correct column name
-    column_name = "ColumnA"  # Update this with the actual column name
-
-    mask_mk = df['ColumnB'].astype(str).str.startswith('MK')
-    mask_non_mk = ~mask_mk
-
-    pattern_mk = r"seri faktur pajak|900|901|total ppn|dasar pengenaan pajak|2022|2021|2023|2024|^(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59|60|61|62|63|64|65|66|67|68|69|70|71|72|73|74|75|76|77|78|79|80|81|82|83|84|85|86|87|88|89|90|91|92|93|94|95|96|97|98|99|100)$"
-    pattern_non_mk = r"seri faktur pajak|900|901|total ppn|dasar pengenaan pajak"
-
-    # Keep rows where the column contains "seri faktur pajak" or any value with "901"
     filtered_df = df[
-        #(mask_mk & df[column_name].astype(str).str.strip().str.contains(pattern_mk, case=False, na=False)) |
-        (df[column_name].astype(str).str.strip().str.contains(pattern_mk, case=False, na=False))
+        df["ColumnA"].astype(str).str.strip().str.contains(pattern_mk, case=False, na=False)
     ]
-
     return filtered_df
 
 
-def main():
-    st.title("Faktur Pajak Unit Organizer")
-    st.write("Upload your Faktur Pajak file. Add column name on the first row as follow:")
-    st.markdown(
-        """
-        - First Column: ColumnA
-        - Second Column: ColumnB
-        """
-    )
+# ── UI ─────────────────────────────────────────────────────────────────────────
 
-    file_pajak_unit = st.file_uploader("Choose an XLSX file", type=["xlsx"])
+file_pajak_unit = st.file_uploader("Choose an XLSX file", type=["xlsx"])
 
-    if file_pajak_unit is not None:
+if file_pajak_unit is not None:
+    with st.spinner("Filtering rows…"):
         unit = pajak_unit(file_pajak_unit)
 
-        st.success("Faktur Pajak File Generated")
+    st.success(f"Done — {len(unit)} rows matched the filter criteria.")
+    st.markdown(divider(), unsafe_allow_html=True)
 
-        # Convert DataFrame to Excel in memory
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            unit.to_excel(writer, index=False, sheet_name='pajak_unit')
-        processed_data = output.getvalue()
+    st.subheader("Filtered Results")
+    st.dataframe(unit, use_container_width=True)
 
-        # Download button
-        st.download_button(
-            "Download Faktur Pajak Unit File",
-            data=processed_data,
-            file_name="faktur_pajak_unit.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+    st.markdown(divider(), unsafe_allow_html=True)
 
-if __name__ == "__main__":
-    main()
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        unit.to_excel(writer, index=False, sheet_name="pajak_unit")
+
+    st.download_button(
+        "⬇ Download Faktur Pajak Unit XLSX",
+        data=output.getvalue(),
+        file_name="faktur_pajak_unit.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )

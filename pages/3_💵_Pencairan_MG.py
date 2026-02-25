@@ -1,89 +1,76 @@
 import streamlit as st
 import pandas as pd
 import re
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from styles import SHARED_CSS, page_header, divider
 
-st.set_page_config(page_title="Pencairan")
+st.set_page_config(page_title="Pencairan MG", page_icon="💵", layout="wide")
+st.markdown(SHARED_CSS, unsafe_allow_html=True)
+st.markdown(page_header("Pencairan MG", "TXT File Parser", "Upload a Pencairan TXT file to extract disbursement details into a clean, downloadable CSV."), unsafe_allow_html=True)
 
-st.sidebar.header("Pencairan TXT file Parser")
+st.sidebar.markdown("### 💵 Pencairan MG")
+st.sidebar.markdown("Extract disbursement details from Pencairan TXT files cleanly.")
 
-# Function to parse loan details with extra columns
+# ── Logic ─────────────────────────────────────────────────────────────────────
+
 def parse_loan_details(lines):
     data = []
     i = 0
     while i < len(lines):
         line = lines[i].strip()
-        # Match lines starting with a number
         if re.match(r"^\s*\d+\s+", line):
-            # Extract main fields using a flexible regex
             match = re.match(
                 r"(\d+)\s+(.+?)\s+-\s+([A-Z]+)\s+([A-Z0-9]+)\s+([A-Z0-9]+)\s+(\d{1,2}/\d{1,2}/\d{4})\s+(\d{1,2}/\d{1,2}/\d{4})\s+([\d,.]*\.\d{2})\s+([\d,.]*\.\d{2})\s+([A-Z0-9]+)\s+([A-Z0-9]+)\s+(N\/A)",
                 line
             )
             if match:
-                # Extract the 13 main fields
                 main_fields = list(match.groups())
-                # Clean numeric values for "Nilai Cair" dan "Nilai Cair + Bunga"
                 main_fields[8:9] = [float(x.replace(",", "")) for x in main_fields[8:9]]
-                # Check if next line exists and does not start with a number
-                if i + 1 < len(lines) and not re.match(r"^\s*\d+\s+", lines[i+1]):
-                    extra_line = lines[i+1].strip()
-                    # Split by two or more spaces
-                    extra_fields = re.split(r"\s{2,}", extra_line)
+                if i + 1 < len(lines) and not re.match(r"^\s*\d+\s+", lines[i + 1]):
                     i += 1
-                # Construct the final row.
-                # New column order:
-                # NO., NAMA CABANG DEBITUR, KD.EXTERNAL, CAB DEBITUR, NO.GROUPING, NO. KONTRAK, TGL.KONTRAK,  TGL.VALUTA, NILAI CAIR, NILAI CAIR+BUNGA, CHASIS, MESIN, TYPE
                 row = [
-                    main_fields[0],            # No.
-                    main_fields[1],            # Nama Cabang Debitur
-                    "",                        # KD. External
-                    main_fields[2],            # Cab Debitur
-                    main_fields[3],            # No. Grouping
-                    main_fields[4],            # No. Kontrak
-                    main_fields[5],            # Tgl. Kontrak
-                    main_fields[6],            # Tgl. Valuta
-                    main_fields[7],            # Nilai Cair
-                    main_fields[8],            # Nilai Cair + Bunga
-                    main_fields[9],           # Chasis
-                    main_fields[10],           # Mesin
-                    main_fields[11]            # Type
+                    main_fields[0], main_fields[1], "",
+                    main_fields[2], main_fields[3], main_fields[4],
+                    main_fields[5], main_fields[6],
+                    main_fields[7], main_fields[8],
+                    main_fields[9], main_fields[10], main_fields[11],
                 ]
                 data.append(row)
         i += 1
     return data
 
 
-#app
-def main():
-    st.title("Pencarian TXT File Parser")
-    st.write("Upload your Pencarian.txt file. The app will extract the details, then generate downloadable CSV files.")
+# ── UI ─────────────────────────────────────────────────────────────────────────
 
-    uploaded_file = st.file_uploader("Choose a TXT file", type = ["txt"])
-    if uploaded_file is not None:
-        file_content = uploaded_file.read().decode("utf-8")
-        lines = file_content.splitlines()
+uploaded_file = st.file_uploader("Choose a TXT file", type=["txt"])
 
-        # Extract loan details subtotals
+if uploaded_file is not None:
+    file_content = uploaded_file.read().decode("utf-8")
+    lines = file_content.splitlines()
+
+    with st.spinner("Parsing file…"):
         pencairan_data = parse_loan_details(lines)
 
-        # Define column headers for Pencairan data
-        loan_columns = [
-            "No.", "NAMA CABANG DEBITUR", "KD EXTERNAL", "CAB DEBITUR", "NO. GROUPING", "NO. KONTRAK", "TGL. KONTRAK", "TGL. VALUTA", "NILAI CAIR", "NILAI CAIR+BUNGA", "CHASIS", "MESIN", 
-            "TYPE"
-        ]
+    loan_columns = [
+        "No.", "NAMA CABANG DEBITUR", "KD EXTERNAL", "CAB DEBITUR",
+        "NO. GROUPING", "NO. KONTRAK", "TGL. KONTRAK", "TGL. VALUTA",
+        "NILAI CAIR", "NILAI CAIR+BUNGA", "CHASIS", "MESIN", "TYPE",
+    ]
 
-        # Define new column headers with reordering
-        # Create DataFrames
-        df_pencairan = pd.DataFrame(pencairan_data, columns=loan_columns)
+    df_pencairan = pd.DataFrame(pencairan_data, columns=loan_columns)
 
-        st.success("File parsed successfully")
-        st.subheader("Pencairan Details")
-        st.dataframe(df_pencairan)
+    st.success(f"Parsed successfully — {len(df_pencairan)} disbursement records found.")
+    st.markdown(divider(), unsafe_allow_html=True)
 
-        # Provide download buttons for Excel files
-        csv_pencairan = df_pencairan.to_csv(index=False).encode("utf-8")
+    st.subheader("Pencairan Details")
+    st.dataframe(df_pencairan, use_container_width=True)
 
-        st.download_button("Download Pencairan CSV", csv_pencairan, "pencairan.csv", "text/csv")
+    st.markdown(divider(), unsafe_allow_html=True)
 
-if __name__ == "__main__":
-    main()
+    st.download_button(
+        "⬇ Download Pencairan CSV",
+        df_pencairan.to_csv(index=False).encode("utf-8"),
+        "pencairan.csv",
+        "text/csv",
+    )
